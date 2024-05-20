@@ -1,0 +1,23 @@
+# Alert for SSH Brute Force Attack
+alert tcp any any -> $HOME_NET 22 (msg:"SSH Bruteforce attempt"; flow:to_server,established; content:"SSH"; nocase; pcre:"/^SSH-2.0-OpenSSH_/"; detection_filter:track by_src, count 5, seconds 60; sid:1000001; rev:1;)
+
+# Alert for SSH attempts from non-authorized MAC addresses
+alert tcp any any -> $HOME_NET 22 (msg:"Unauthorized SSH MAC address"; flow:to_server,established; content:"SSH"; nocase; pcre:"/^SSH-2.0-OpenSSH_/"; sid:1000002; rev:1;)
+
+# Alert for ICMP echo requests (pings)
+alert icmp any any -> ADRES_IP_KOMPUTERA (msg:"ICMP echo request"; itype:8; sid:1000003; rev:1;)
+
+# Alert for potential SYN flood attack
+alert tcp any any -> $HOME_NET any (msg:"Potential SYN flood attack"; flags:S; threshold:type both, track by_src, count 20, seconds 1; sid:1000004; rev:1;)
+
+# Alert for potential HTTP flood attack
+alert tcp any any -> $HOME_NET 80 (msg:"Potential HTTP flood attack"; flow:to_server,established; content:"GET"; http_method; detection_filter:track by_src, count 100, seconds 1; sid:1000005; rev:1;)
+
+# Alert for potential ICMP flood attack
+alert icmp any any -> $HOME_NET any (msg:"Potential ICMP flood attack"; itype:8; detection_filter:track by_src, count 10, seconds 1; sid:1000006; rev:1;)
+
+# Alert for potential UDP flood attack
+alert udp any any -> $HOME_NET any (msg:"Potential UDP flood attack"; threshold:type both, track by_src, count 100, seconds 1; sid:1000007; rev:1;)
+
+# Alert for potential FTP Brute Force Attack
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"Possible FTP Brute Force Attack"; flow:to_server,established; content:"530 Login incorrect"; nocase; threshold:type threshold, track by_src, count 5, seconds 60; sid:1000008; rev:1;)
